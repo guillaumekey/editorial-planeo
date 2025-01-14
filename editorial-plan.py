@@ -311,11 +311,45 @@ def load_data(uploaded_file):
         (df['Indexability'] == 'Indexable')
         ].copy()
 
-    # Convert numeric columns
-    numeric_columns = ['Clicks', 'Impressions', 'Position', 'Unique Inlinks']
-    for col in numeric_columns:
+    # Convert numeric columns and handle NaN values
+    numeric_columns = {
+        'Clicks': 0.0,
+        'Impressions': 0.0,
+        'Position': 0.0,
+        'Unique Inlinks': 0
+    }
+
+    for col, default_value in numeric_columns.items():
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
+            # Convert to numeric, replacing NaN with default value
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(default_value)
+
+    # Print the first few rows of each metric in a more compact format
+    st.write("Sample of metrics after loading:")
+
+    # Create 4 columns for metrics display
+    col1, col2, col3, col4 = st.columns(4)
+
+    # Display each metric in its own column
+    with col1:
+        if 'Clicks' in df.columns:
+            st.write("Clicks:")
+            st.dataframe(df['Clicks'].head().reset_index().rename(columns={'index': '#'}), height=200)
+
+    with col2:
+        if 'Impressions' in df.columns:
+            st.write("Impressions:")
+            st.dataframe(df['Impressions'].head().reset_index().rename(columns={'index': '#'}), height=200)
+
+    with col3:
+        if 'Position' in df.columns:
+            st.write("Position:")
+            st.dataframe(df['Position'].head().reset_index().rename(columns={'index': '#'}), height=200)
+
+    with col4:
+        if 'Unique Inlinks' in df.columns:
+            st.write("Unique Inlinks:")
+            st.dataframe(df['Unique Inlinks'].head().reset_index().rename(columns={'index': '#'}), height=200)
 
     return df
 
